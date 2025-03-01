@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,7 +33,6 @@
         const messagesRef = ref(db, 'messages');
 
         let currentUser = null;
-        let chatWithUser = null;
 
         // Check if the user is logged in
         onAuthStateChanged(auth, (user) => {
@@ -54,14 +53,11 @@
                 window.location.href = "index.html";
             }
         });
-
         // Load existing messages
         function loadMessages() {
             onChildAdded(messagesRef, (snapshot) => {
                 const data = snapshot.val();
-                if (data.user === currentUser.email || data.user === chatWithUser) {
-                    appendMessage(data);
-                }
+                appendMessage(data);
             });
         }
 
@@ -72,12 +68,9 @@
 
             messageElement.classList.add("message", isCurrentUser ? "outgoing" : "incoming");
 
-            // Always display "Sithija" as the sender name for your messages
-            const displayName = (data.user === currentUser.email) ? 'Sithija' : data.user.split('@')[0];
-
             messageElement.innerHTML = ` 
                 <div class="message-content">
-                    ${!isCurrentUser ? `<b><div class="sender">${displayName}</div></b>` : ''} 
+                    ${!isCurrentUser ? `<b><div class="sender">${data.user.split('@')[0]}</div></b>` : ''} 
                     <div class="text">${data.message}</div>
                     <div class="time" style="font-size: 10px;">${new Date(data.timestamp).toLocaleTimeString()}</div>
                 </div>
@@ -87,15 +80,21 @@
             scrollToBottom();
         }
 
+        // Format timestamp
+        function formatTime(timestamp) {
+            if (!timestamp) return "";
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
         // Send message to Firebase
         window.sendMessage = function() {
             const message = document.getElementById("message-input").value;
-            if (message.trim() && currentUser && chatWithUser) {
+            if (message.trim() && currentUser) {
                 push(messagesRef, {
                     user: currentUser.email,
                     message: message,
-                    timestamp: Date.now(),
-                    chatWith: chatWithUser
+                    timestamp: Date.now()
                 });
                 document.getElementById("message-input").value = ""; // Clear input field
             }
@@ -112,12 +111,6 @@
         function scrollToBottom() {
             const messagesContainer = document.getElementById("messages");
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        // Set chat with user (when user selects who to chat with)
-        window.setChatWithUser = function(userEmail) {
-            chatWithUser = userEmail;
-            document.getElementById("chat-header-name").innerText = userEmail.split('@')[0]; // Display the selected user's name
         }
 
         // Logout function
@@ -239,6 +232,8 @@
         .clear-btn:hover {
             background-color: #c82333;
         }
+
+       
     </style>
 </head>
 
@@ -246,18 +241,14 @@
     <div id="chat-container" class="container" style="display: none;">
         <div class="chat-header">
             <span id="user-email"></span>
-            <span id="chat-header-name" class="ms-auto"></span> <!-- Chat with user's name -->
             <button onclick="logout()" class="btn btn-danger btn-sm ms-auto">Logout</button>
-            <button onclick="clearChat()" class="clear-btn btn-sm">Clear Chat</button>
+            <button onclick="clearChat()" class="clear-btn btn-sm ">Clear Chat</button>
         </div>
         <div id="messages"></div>
         <div class="chat-footer">
-            <input type="text" id="message-input" onkeypress="handleKeyPress(event)" placeholder="Type a message..." class="form-control">
-            <button onclick="sendMessage()" class="send-btn">
-                <i class="fas fa-paper-plane text-white"></i>
-            </button>
+            <input type="text" id="message-input" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+            <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 </body>
-
 </html>
