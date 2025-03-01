@@ -1,0 +1,243 @@
+body {
+  background-color: #f0f2f5;
+  font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 1000px;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+#login-form {
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  border-radius: 5px;
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-header h2 {
+  color: #128C7E;
+  margin-bottom: 10px;
+}
+
+.form-control {
+  margin-bottom: 15px;
+  border-radius: 24px;
+  padding: 12px 20px;
+  border: 1px solid #e0e0e0;
+}
+
+.login-btn {
+  background-color: #25D366;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 24px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.login-btn:hover {
+  background-color: #128C7E;
+}
+
+#chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  background-color: #075E54;
+  color: white;
+  height: 59px;
+}
+
+.chat-header .profile {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.chat-header .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #128C7E;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 15px;
+  color: white;
+  font-weight: bold;
+}
+
+.chat-header .user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header .user-name {
+  font-weight: bold;
+}
+
+.chat-header .actions {
+  display: flex;
+}
+
+.chat-header .actions button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  margin-left: 15px;
+  cursor: pointer;
+}
+
+#messages {
+  flex-grow: 1;
+  padding: 16px;
+  overflow-y: auto;
+  background-image: url('/api/placeholder/500/500');
+  background-color: #E5DDD5;
+  background-size: cover;
+  display: flex;
+  flex-direction: column;
+}
+
+.message {
+  max-width: 65%;
+  margin-bottom: 8px;
+  display: flex;
+}
+
+.message.incoming {
+  align-self: flex-start;
+}
+
+.message.outgoing {
+  align-self: flex-end;
+}
+
+.message-content {
+  padding: 6px 7px 8px 9px;
+  border-radius: 7.5px;
+  position: relative;
+  box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+}
+
+.incoming .message-content {
+  background-color: white;
+  border-top-left-radius: 0;
+}
+
+.outgoing .message-content {
+  background-color: #DCF8C6;
+  border-top-right-radius: 0;
+}
+
+.sender {
+  font-size: 12px;
+  font-weight: bold;
+  color: #128C7E;
+  margin-bottom: 2px;
+}
+
+.text {
+  font-size: 14px;
+  line-height: 19px;
+  color: #303030;
+}
+
+.time {
+  font-size: 11px;
+  color: #999;
+  float: right;
+  margin-left: 10px;
+  margin-top: 2px;
+}
+
+.chat-footer {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: #F0F0F0;
+  border-top: 1px solid #E0E0E0;
+}
+
+.message-input-container {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 24px;
+  padding: 9px 12px;
+  margin-right: 8px;
+}
+
+#message-input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  padding: 0 8px;
+  background: transparent;
+}
+
+.send-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #25D366;
+  color: white;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.send-btn:disabled {
+  background-color: #E0E0E0;
+}
+
+.emoji-btn, .attach-btn {
+  background: none;
+  border: none;
+  color: #919191;
+  font-size: 20px;
+  padding: 0 8px;
+  cursor: pointer;
+}
+
+.sender{
+  font-weight:bold;
+}

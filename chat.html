@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Chat</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+
+    <script type="module">
+        // Firebase Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getDatabase, ref, push, onChildAdded, remove, get } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB44Bv9ZoLYChynNPh3N5pUP6SjM4Z5KLM",
+            authDomain: "web-chat-37c65.firebaseapp.com",
+            projectId: "web-chat-37c65",
+            storageBucket: "web-chat-37c65.appspot.com",
+            messagingSenderId: "104208377586",
+            appId: "1:104208377586:web:7d2d460df90150d2b3d26b",
+            measurementId: "G-LX48P3Q88B",
+            databaseURL: "https://web-chat-37c65-default-rtdb.asia-southeast1.firebasedatabase.app"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        const messagesRef = ref(db, 'messages');
+
+        let currentUser = null;
+
+        // Check if the user is logged in
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById("chat-container").style.display = "flex";
+                document.getElementById("user-email").innerText = user.email.split("@")[0];
+
+                loadMessages();
+            } else {
+                // Redirect to login if no user is logged in
+                window.location.href = "index.html";
+            }
+        });
+
+        // Load existing messages
+        function loadMessages() {
+            onChildAdded(messagesRef, (snapshot) => {
+                const data = snapshot.val();
+                appendMessage(data);
+            });
+        }
+
+        // Append message to chat
+        function appendMessage(data) {
+            const messageElement = document.createElement("div");
+            const isCurrentUser = data.user === currentUser.email;
+
+            messageElement.classList.add("message", isCurrentUser ? "outgoing" : "incoming");
+
+            messageElement.innerHTML = ` 
+                <div class="message-content">
+                    ${!isCurrentUser ? `<b><div class="sender">${data.user.split('@')[0]}</div></b>` : ''} 
+                    <div class="text">${data.message}</div>
+                    <div class="time" style="font-size: 10px;">${new Date(data.timestamp).toLocaleTimeString()}</div>
+                </div>
+            `;
+
+            document.getElementById("messages").appendChild(messageElement);
+            scrollToBottom();
+        }
+
+        // Format timestamp
+        function formatTime(timestamp) {
+            if (!timestamp) return "";
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Send message to Firebase
+        window.sendMessage = function() {
+            const message = document.getElementById("message-input").value;
+            if (message.trim() && currentUser) {
+                push(messagesRef, {
+                    user: currentUser.email,
+                    message: message,
+                    timestamp: Date.now()
+                });
+                document.getElementById("message-input").value = ""; // Clear input field
+            }
+        }
+
+        // Handle Enter key press
+        window.handleKeyPress = function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Scroll chat to bottom
+        function scrollToBottom() {
+            const messagesContainer = document.getElementById("messages");
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Logout function
+        window.logout = function() {
+            signOut(auth).then(() => {
+                window.location.href = "index.html";
+            });
+        }
+
+        // Clear all messages from Firebase
+        window.clearChat = function() {
+            // Get all messages and remove them
+            get(messagesRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    snapshot.forEach(childSnapshot => {
+                        remove(childSnapshot.ref);
+                    });
+                }
+            }).then(() => {
+                // Clear the chat UI after removing from database
+                document.getElementById("messages").innerHTML = '';
+            });
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #fae6e6;
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            background-color: #075E54;
+            color: white;
+        }
+
+        #messages {
+            flex-grow: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background-color: #E5DDD5;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 65%;
+            margin-bottom: 8px;
+            display: flex;
+        }
+
+        .message.incoming { align-self: flex-start; }
+        .message.outgoing { align-self: flex-end; }
+
+        .message-content {
+            padding: 8px;
+            border-radius: 7.5px;
+            position: relative;
+            box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+        }
+
+        .incoming .message-content { background-color: white; }
+        .outgoing .message-content { background-color: #DCF8C6; }
+
+        .chat-footer {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #F0F0F0;
+        }
+
+        #message-input { flex-grow: 1; border: none; outline: none; padding: 8px; }
+
+        .send-btn {
+            width: 40px; height: 40px;
+            background-color: #25D366;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .send-btn:hover {
+            background-color: #128C7E;
+        }
+
+        .clear-btn {
+            margin-left: 10px;
+            background-color: #dc3545;
+            border: none;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .clear-btn:hover {
+            background-color: #c82333;
+        }
+
+       
+    </style>
+</head>
+
+<body>
+    <div id="chat-container" class="container" style="display: none;">
+        <div class="chat-header">
+            <span id="user-email"></span>
+            <button onclick="logout()" class="btn btn-danger btn-sm ms-auto">Logout</button>
+            <button onclick="clearChat()" class="clear-btn btn-sm ">Clear Chat</button>
+        </div>
+        <div id="messages"></div>
+        <div class="chat-footer">
+            <input type="text" id="message-input" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+            <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+</body>
+</html>
